@@ -35,8 +35,10 @@ class SemanticSearch:
         self._load_model()
         
         if self.model is None:
-            # Fallback: simple hash-based encoding
-            return np.hash(text.encode()) % 1000
+            # Fallback: simple hash-based encoding using built-in hash
+            import hashlib
+            hash_bytes = hashlib.md5(text.encode()).digest()
+            return np.frombuffer(hash_bytes, dtype=np.uint8).astype(np.float32)
         
         return self.model.encode([text])[0]
     

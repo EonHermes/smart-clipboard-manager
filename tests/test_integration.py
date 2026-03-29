@@ -13,14 +13,24 @@ from src.ml.searcher import SemanticSearch
 class TestFullWorkflow:
     """Test complete workflows."""
     
-    @pytest.fixture
+    @pytest.fixture(autouse=True)
     def setup_storage(self):
-        """Set up test storage with sample data."""
+        """Set up test storage with sample data for each test."""
         with tempfile.TemporaryDirectory() as tmpdir:
             db_path = Path(tmpdir) / "test.db"
             
-            # Create storage (will use default path, we'll work around it)
+            # Create a fresh storage instance per test
+            from sqlalchemy import create_engine
+            from src.clipboard.storage import Base, ClipStorage
+            
+            engine = create_engine(f"sqlite:///{db_path}")
+            Base.metadata.create_all(engine)
+            
             storage = ClipStorage()
+            storage.db_path = db_path
+            storage.engine = engine
+            from sqlalchemy.orm import sessionmaker
+            storage.SessionLocal = sessionmaker(bind=engine)
             
             yield storage
     
@@ -84,17 +94,17 @@ class TestFullWorkflow:
         # Should find React-related content
         assert len(results) > 0
     
-    def test_export_import_workflow(self):
+    def test_export_import_workflow(self, setup_storage):
         """Test export and potential import workflow."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            storage = ClipStorage()
+            # Use the fixture's storage which is already isolated
             
             # Add some clips
-            storage.add_clip("Clip one", "text")
-            storage.add_clip("Clip two", "code")
+            setup_storage.add_clip("Clip one", "text")
+            setup_storage.add_clip("Clip two", "code")
             
-            # Export
-            clips = storage.get_recent(limit=10)
+            # Export only these 2 clips (use limit=2)
+            clips = setup_storage.get_recent(limit=2)
             export_data = {
                 "clips": [c.to_dict() for c in clips],
             }
@@ -114,6 +124,26 @@ class TestFullWorkflow:
 
 class TestEdgeCases:
     """Test edge cases and error handling."""
+    
+    @pytest.fixture(autouse=True)
+    def setup_storage(self):
+        """Set up test storage for each test."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            db_path = Path(tmpdir) / "test.db"
+            
+            from sqlalchemy import create_engine
+            from src.clipboard.storage import Base, ClipStorage
+            
+            engine = create_engine(f"sqlite:///{db_path}")
+            Base.metadata.create_all(engine)
+            
+            storage = ClipStorage()
+            storage.db_path = db_path
+            storage.engine = engine
+            from sqlalchemy.orm import sessionmaker
+            storage.SessionLocal = sessionmaker(bind=engine)
+            
+            yield storage
     
     def test_empty_content(self, setup_storage):
         """Test handling of empty content."""

@@ -9,11 +9,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 class ContentClassifier:
     """Classifies clipboard content into categories."""
     
-    # Predefined categories with keywords
+    # Predefined categories with keywords (order matters for priority)
     CATEGORIES = {
+        "email": [ "@"],  # Check email first (must have @)
         "code": ["function", "def ", "class ", "import", "const", "let", "var", "fn"],
-        "url": ["http://", "https://", "www.", ".com", ".org", ".io"],
-        "email": ["@", ".com", ".org", ".net"],
+        "url": ["http://", "https://", "www."],  # www. without @ is URL
         "command": ["sudo", "pip", "npm", "cargo", "git", "docker"],
         "text": [],  # Default category
     }
