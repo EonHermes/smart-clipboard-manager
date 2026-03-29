@@ -1,0 +1,23 @@
+# Core dependencies
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pyperclip>=1.8.2
+sqlalchemy>=2.0.0
+aiosqlite>=0.19.0
+
+# ML dependencies
+scikit-learn>=1.4.0
+sentence-transformers>=2.3.0
+numpy>=1.24.0
+
+# Utilities
+python-multipart>=0.0.6
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+watchdog>=3.0.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+httpx>=0.26.0

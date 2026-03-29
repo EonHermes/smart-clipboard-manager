@@ -1,0 +1,7 @@
+-r requirements.txt
+
+# Additional dev tools
+black>=24.1.0
+isort>=5.13.0
+mypy>=1.8.0
+ruff>=0.1.0
